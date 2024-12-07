@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/kakikubo/blockchain-go/utils"
 	"github.com/kakikubo/blockchain-go/wallet"
 	"html/template"
@@ -71,9 +72,23 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 			return
 		}
 
-		//fmt.Println(*t.SenderPublicKey)
+		publicKey := utils.PublicKeyFromString(*t.SenderPublicKey)
+		privateKey := utils.PrivateKeyFromString(*t.SenderPrivateKey, publicKey)
+		value, err := strconv.ParseFloat(*t.Value, 32)
+		if err != nil {
+			log.Println("ERROR: parse error")
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+		value32 := float32(value)
+
+		w.Header().Add("Content-Type", "application/json")
+		//fmt.Println(publicKey)
+		//fmt.Println(privateKey)
+		//fmt.Printf("%.1f\n", value32)
+		//fmt.Println(len(*t.SenderPrivateKey))
+		//fmt.Println(len(*t.SenderPublicKey))
 		//fmt.Println(*t.SenderBlockchainAddress)
-		//fmt.Println(*t.SenderPrivateKey)
 		//fmt.Println(*t.RecipientBlockchainAddress)
 		//fmt.Println(*t.Value)
 	default:
