@@ -77,6 +77,10 @@ func NewBlockchain(blockchainAddress string, port uint16) *Blockchain {
 	return bc
 }
 
+func (bc *Blockchain) TransactionPool() []*Transaction {
+	return bc.transactionPool
+}
+
 func (bc *Blockchain) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Blocks []*Block `json:"chains"`
@@ -102,6 +106,13 @@ func (bc *Blockchain) Print() {
 		block.Print()
 	}
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
+}
+
+func (bc *Blockchain) CreateTransaction(sender string, recipient string, value float32, senderPublicKey *ecdsa.PublicKey, s *utils.Signature) bool {
+	isTransacted := bc.AddTransaction(sender, recipient, value, senderPublicKey, s)
+	// TODO
+	// Sync
+	return isTransacted
 }
 
 func (bc *Blockchain) AddTransaction(sender string, recipient string, value float32, senderPublicKey *ecdsa.PublicKey, s *utils.Signature) bool {
@@ -220,7 +231,7 @@ type TransactionRequest struct {
 	RecipientBlockchainAddress *string  `json:"recipient_blockchain_address"`
 	SenderPublicKey            *string  `json:"sender_public_key"`
 	Value                      *float32 `json:"value"`
-	Signagure                  *string  `json:"signature"`
+	Signature                  *string  `json:"signature"`
 }
 
 func (tr *TransactionRequest) Validate() bool {
@@ -228,7 +239,7 @@ func (tr *TransactionRequest) Validate() bool {
 		tr.RecipientBlockchainAddress == nil ||
 		tr.SenderPublicKey == nil ||
 		tr.Value == nil ||
-		tr.Signagure == nil {
+		tr.Signature == nil {
 		return false
 	}
 	return true
