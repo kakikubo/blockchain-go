@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -50,4 +52,18 @@ func FindNeighbors(myHost string, myPort uint16, startIp uint8, endIp uint8, sta
 		}
 	}
 	return neighbors
+}
+
+func GetHost() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return "127.0.0.1"
+	}
+
+	//address, err := net.LookupHost(hostname)
+	address, err := net.DefaultResolver.LookupIP(context.Background(), "ip4", hostname)
+	if err != nil {
+		return "127.0.0.1"
+	}
+	return address[0].String()
 }
