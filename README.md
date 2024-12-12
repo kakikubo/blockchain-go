@@ -8,6 +8,7 @@
 
 ## 利用方法
 
+![img_2.png](img_2.png)
 以下の通りblockchainバックエンドを3つ起動します
 
 ```bash
