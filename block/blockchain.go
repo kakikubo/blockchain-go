@@ -87,7 +87,7 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 func (b *Block) UnmarshalJSON(data []byte) error {
 	var previousHash string
 	v := &struct {
-		Timestamp    *int64          `json:"timestampe"`
+		Timestamp    *int64          `json:"timestamp"`
 		Nonce        *int            `json:"nonce"`
 		PreviousHash *string         `json:"previous_hash"`
 		Transactions *[]*Transaction `json:"transactions"`
@@ -131,6 +131,7 @@ func (bc *Blockchain) Chain() []*Block {
 
 func (bc *Blockchain) Run() {
 	bc.StartSyncNeighbors()
+	bc.ResolveConflicts()
 }
 
 func (bc *Blockchain) SetNeighbors() {
@@ -297,6 +298,15 @@ func (bc *Blockchain) Mining() bool {
 	previousHash := bc.LastBlock().Hash()
 	bc.CreateBlock(nonce, previousHash)
 	log.Println("action=mining, status=success")
+
+	for _, n := range bc.neighbors {
+		endpoint := fmt.Sprintf("http://%s/consensus", n)
+		client := &http.Client{}
+		req, _ := http.NewRequest("PUT", endpoint, nil)
+		resp, _ := client.Do(req)
+		log.Printf("%v", resp)
+	}
+
 	return true
 }
 
